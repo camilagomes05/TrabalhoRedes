@@ -1,0 +1,54 @@
+# Arquivo: docker-compose-4peers.yml
+# Define a topologia da rede com 4 peers.
+
+services:
+  peer1:
+    build: .
+    # O comando agora inclui o peer4
+    command: ./peer 8001 peer2:8002 peer3:8003 peer4:8004
+    stdin_open: true
+    tty: true
+    volumes:
+      - peer1_data:/app/tmp
+    networks:
+      - p2p_net
+
+  peer2:
+    build: .
+    command: ./peer 8002 peer1:8001 peer3:8003 peer4:8004
+    stdin_open: true
+    tty: true
+    volumes:
+      - peer2_data:/app/tmp
+    networks:
+      - p2p_net
+
+  peer3:
+    build: .
+    command: ./peer 8003 peer1:8001 peer2:8002 peer4:8004
+    stdin_open: true
+    tty: true
+    volumes:
+      - peer3_data:/app/tmp
+    networks:
+      - p2p_net
+      
+  # O novo peer adicionado à rede
+  peer4:
+    build: .
+    command: ./peer 8004 peer1:8001 peer2:8002 peer3:8003
+    stdin_open: true
+    tty: true
+    volumes:
+      - peer4_data:/app/tmp
+    networks:
+      - p2p_net
+
+volumes:
+  peer1_data:
+  peer2_data:
+  peer3_data:
+  peer4_data: # Adiciona o volume para o peer4
+
+networks:
+  p2p_net:

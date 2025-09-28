@@ -1,0 +1,38 @@
+services:
+  peer1:
+    build: .
+    command: ./peer 8001 peer2:8002 peer3:8003
+    stdin_open: true
+    tty: true
+    volumes:
+      - peer1_data:/app/tmp
+    networks:
+      - p2p_net
+
+  peer2:
+    build: .
+    command: ./peer 8002 peer1:8001 peer3:8003
+    stdin_open: true
+    tty: true
+    volumes:
+      - peer2_data:/app/tmp
+    networks:
+      - p2p_net
+
+  peer3:
+    build: .
+    command: ./peer 8003 peer1:8001 peer2:8002
+    stdin_open: true
+    tty: true
+    volumes:
+      - peer3_data:/app/tmp
+    networks:
+      - p2p_net
+
+volumes:
+  peer1_data:
+  peer2_data:
+  peer3_data:
+
+networks:
+  p2p_net:
