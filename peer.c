@@ -1,22 +1,18 @@
-// ========================================================================
-//                     INCLUSÃO DE BIBLIOTECAS (CABEÇALHOS)
-// ========================================================================
-#include <stdio.h>      // Para funções de entrada e saída padrão (printf, snprintf)
-#include <stdlib.h>     // Para funções gerais como alocação de memória (malloc) e conversão de strings (atoi)
-#include <string.h>     // Para manipulação de strings (strcpy, strcmp, strtok, memset, memcpy)
-#include <unistd.h>     // Para chamadas de sistema POSIX como sleep(), close(), access(), remove()
-#include <pthread.h>    // Para a criação e gerenciamento de threads (POSIX Threads)
-#include <sys/socket.h> // Para a API de sockets (socket, bind, listen, accept, connect, send, recv)
-#include <netinet/in.h> // Para as estruturas de endereço da internet (struct sockaddr_in)
-#include <arpa/inet.h>  // Para funções de manipulação de endereços IP
-#include <dirent.h>     // Para manipulação de diretórios (opendir, readdir, closedir)
-#include <sys/stat.h>   // Para obter informações de arquivos e diretórios (stat, mkdir)
-#include <time.h>       // Funções relacionadas a tempo
-#include <netdb.h>      // Biblioteca para resolução de nomes (DNS), essencial para o Docker (gethostbyname)
+#include <stdio.h>      
+#include <stdlib.h>     
+#include <string.h>     
+#include <unistd.h>     
+#include <pthread.h>    
+#include <sys/socket.h> 
+#include <netinet/in.h> 
+#include <arpa/inet.h>  
+#include <dirent.h>     
+#include <sys/stat.h>   
+#include <time.h>     
+#include <netdb.h>     
 
-// ========================================================================
-//                             DEFINIÇÕES GLOBAIS
-// ========================================================================
+// DEFINIÇÕES GLOBAIS
+
 #define MAX_PEERS 10             // Número máximo de outros peers que este nó pode conhecer
 #define BUFFER_SIZE 4096         // Tamanho do buffer para leitura/escrita de dados de rede e arquivos (4KB)
 #define SYNC_DIR "tmp"           // Nome do diretório que será sincronizado
@@ -24,22 +20,21 @@
 
 // Estrutura para representar um peer na rede
 typedef struct {
-    char ip[256]; // Endereço do peer (IP ou nome do host, como "peer2" no Docker)
-    int port;     // Porta em que o peer está escutando por conexões
+    char ip[256]; 
+    int port;     
 } Peer;
 
 // Variáveis Globais, acessíveis por todas as threads
-Peer self;                                    // Estrutura para guardar as informações do próprio peer
-Peer known_peers[MAX_PEERS];                  // Array para armazenar os outros peers conhecidos na rede
-int peer_count = 0;                           // Contador de quantos peers conhecidos existem
-pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER; // Mutex para garantir acesso seguro aos arquivos no disco
+Peer self;                                 
+Peer known_peers[MAX_PEERS];                 
+int peer_count = 0;                          
+pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER; 
 
 // Protótipo da função (declaração antecipada) para que outras funções possam chamá-la
 void request_file(const Peer* target, const char* filename);
 
-// ========================================================================
-//                    LÓGICA DE REDE (FUNÇÕES "CLIENTE")
-// ========================================================================
+
+// (FUNÇÕES "CLIENTE")
 static int connect_to_peer(const Peer* target) {
     int sockfd;
     struct hostent *server;
@@ -110,9 +105,8 @@ static void broadcast_notification(const char* message) {
     }
 }
 
-// ========================================================================
-//                THREADS DE CONTROLE (O CORAÇÃO AUTOMÁTICO)
-// ========================================================================
+
+//THREADS DE CONTROLE
 void* monitor_directory_thread_func(void* arg) {
     char known_files[512][256] = {0};
     int known_file_count = 0;
@@ -204,9 +198,9 @@ void* sync_thread_func(void* arg) {
     return NULL;
 }
 
-// ========================================================================
-//                   LÓGICA DO SERVIDOR (RESPONDENDO A PEDIDOS)
-// ========================================================================
+
+// LÓGICA DO SERVIDOR
+
 void* handle_connection(void* socket_desc) {
     int client_sock = *(int*)socket_desc;
     free(socket_desc);
@@ -280,9 +274,7 @@ void* server_thread_func(void* arg) {
     return NULL;
 }
 
-// ========================================================================
-//                             FUNÇÃO PRINCIPAL
-// ========================================================================
+//FUNÇÃO PRINCIPAL
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Uso: %s <porta_local> [ip_peer1:porta1] ...\n", argv[0]);
@@ -314,4 +306,5 @@ int main(int argc, char* argv[]) {
     pthread_join(monitor_tid, NULL);
 
     return 0;
+
 }
